@@ -14,11 +14,17 @@
         />
       </div>
       <p class="text-white">
-        <span class="text-red">{{ difference }}%</span> from the day before
+        <span :class="[hasDecreased ? 'text-green' : 'text-red']">
+          {{ difference }}%
+        </span>
+        from the day before
       </p>
     </div>
+    <p class="mb-6 -mt-6 text-sm text-center text-white">
+      Weekly breakdown below
+    </p>
 
-    <Details :days="days" />
+    <Details :days="days" :average="average" />
   </div>
 </template>
 
@@ -49,10 +55,15 @@ export default {
 
     const days = [...formatted].reverse()
 
+    const average =
+      formatted.reduce((acc, curr) => curr.new_infections + acc, 0) /
+      formatted.length
+
     return {
       days,
       today: days[0],
       yesterday: days[1],
+      average,
     }
   },
   computed: {
@@ -63,6 +74,9 @@ export default {
       )
 
       return difference.toFixed(2)
+    },
+    hasDecreased() {
+      return this.difference.includes('-')
     },
   },
   methods: {

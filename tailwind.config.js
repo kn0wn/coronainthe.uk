@@ -15,6 +15,7 @@ module.exports = {
         light: '#d3d0cb',
       },
       red: '#FF4545',
+      green: '#2AFC98',
     },
     extend: {
       spacing: {
