@@ -15,7 +15,7 @@
       </li>
     </ul>
     <div class="flex items-center justify-center py-8 mx-auto text-grey-light">
-      <a href="https://twitter.com/kn0wndev">
+      <a href="https://github.com/kn0wn">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="w-12 h-12 mx-2"
@@ -27,7 +27,7 @@
           ></path>
         </svg>
       </a>
-      <a href="https://github.com/kn0wn">
+      <a href="https://twitter.com/kn0wndev">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="w-12 h-12 mx-2"

@@ -6,6 +6,7 @@
           class="z-10 flex flex-col items-center justify-center w-64 h-64 rounded-full bg-red"
         >
           <h1 class="text-5xl">{{ days[0].new_infections }}</h1>
+          <p class="mb-2 -mt-3 text-xs">NEW INFECTIONS</p>
           <p>{{ $dateFns.format(days[0].date, 'P') }}</p>
         </div>
         <div
