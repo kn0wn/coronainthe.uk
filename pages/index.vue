@@ -1,0 +1,91 @@
+<template>
+  <div class="bg-grey">
+    <div class="flex flex-col items-center justify-center min-h-screen">
+      <div class="relative flex items-center justify-center mb-12">
+        <div
+          class="z-10 flex flex-col items-center justify-center w-64 h-64 rounded-full bg-red"
+        >
+          <h1 class="text-5xl">{{ days[0].new_infections }}</h1>
+          <p>{{ $dateFns.format(days[0].date, 'P') }}</p>
+        </div>
+        <div
+          class="absolute bg-opacity-25 rounded-full animate-ping h-68 w-68 bg-red"
+        />
+      </div>
+      <p class="text-white">
+        <span class="text-red">{{ difference }}%</span> from the day before
+      </p>
+    </div>
+
+    <Details :days="days" />
+  </div>
+</template>
+
+<script>
+/* eslint-disable camelcase */
+export default {
+  async asyncData({ $axios, $dateFns }) {
+    const today = new Date()
+    const yesterday = $dateFns.subDays(today, 1)
+    const sevenDaysAgo = $dateFns.subDays(yesterday, 7)
+    const { data } = await $axios.get(
+      `https://api.coronatracker.com/v4/analytics/newcases/country?countryCode=GB&startDate=${$dateFns.format(
+        sevenDaysAgo,
+        'yyyy-MM-dd'
+      )}&endDate=${$dateFns.format(today, 'yyyy-MM-dd')}`
+    )
+
+    const formatted = data
+      .map((day) => {
+        const { last_updated, ...rest } = day
+
+        return {
+          date: $dateFns.parseISO(last_updated),
+          ...rest,
+        }
+      })
+      .filter(({ new_infections }) => new_infections > 0)
+
+    const days = [...formatted].reverse()
+
+    return {
+      days,
+      today: days[0],
+      yesterday: days[1],
+    }
+  },
+  computed: {
+    difference() {
+      const difference = this.getPercentageChange(
+        this.today.new_infections,
+        this.yesterday.new_infections
+      )
+
+      return difference.toFixed(2)
+    },
+  },
+  methods: {
+    getPercentageChange(oldNumber, newNumber) {
+      const decreaseValue = oldNumber - newNumber
+
+      return (decreaseValue / oldNumber) * 100
+    },
+  },
+}
+</script>
+
+<style lang="postcss">
+.animate-ping {
+  animation: ping 1.5s infinite;
+}
+
+@keyframes ping {
+  75% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+</style>
