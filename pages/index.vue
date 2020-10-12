@@ -19,10 +19,8 @@
         </span>
         from the day before
       </p>
+      <p class="text-sm text-center text-white">Weekly breakdown below</p>
     </div>
-    <p class="mb-6 -mt-6 text-sm text-center text-white">
-      Weekly breakdown below
-    </p>
 
     <Details :days="days" :average="average" />
   </div>
