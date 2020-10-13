@@ -31,13 +31,13 @@
 export default {
   async asyncData({ $axios, $dateFns }) {
     const today = new Date()
-    const yesterday = $dateFns.subDays(today, 1)
-    const sevenDaysAgo = $dateFns.subDays(yesterday, 7)
+    const tomorrow = $dateFns.addDays(today, 1)
+    const sevenDaysAgo = $dateFns.subDays(tomorrow, 7)
     const { data } = await $axios.get(
       `https://api.coronatracker.com/v4/analytics/newcases/country?countryCode=GB&startDate=${$dateFns.format(
         sevenDaysAgo,
         'yyyy-MM-dd'
-      )}&endDate=${$dateFns.format(today, 'yyyy-MM-dd')}`
+      )}&endDate=${$dateFns.format(tomorrow, 'yyyy-MM-dd')}`
     )
 
     const formatted = data
