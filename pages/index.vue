@@ -15,7 +15,7 @@
       </div>
       <p class="text-white">
         <span :class="[hasDecreased ? 'text-green' : 'text-red']">
-          {{ difference }}%
+          {{ hasDecreased ? '' : '+' }}{{ difference }}%
         </span>
         from the day before
       </p>
