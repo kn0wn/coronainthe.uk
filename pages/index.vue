@@ -3,14 +3,16 @@
     <div class="flex flex-col items-center justify-center min-h-screen">
       <div class="relative flex items-center justify-center mb-12">
         <div
-          class="z-10 flex flex-col items-center justify-center w-64 h-64 rounded-full bg-red"
+          :class="[hasDecreased ? 'bg-green' : 'bg-red']"
+          class="z-10 flex flex-col items-center justify-center w-64 h-64 rounded-full"
         >
-          <h1 class="text-5xl">{{ days[0].new_infections }}</h1>
+          <h1 class="text-5xl">{{ days[0].newCases }}</h1>
           <p class="mb-2 -mt-3 text-xs">NEW INFECTIONS</p>
           <p>{{ $dateFns.format(days[0].date, 'P') }}</p>
         </div>
         <div
-          class="absolute bg-opacity-25 rounded-full animate-ping h-68 w-68 bg-red"
+          :class="[hasDecreased ? 'bg-green' : 'bg-red']"
+          class="absolute bg-opacity-25 rounded-full animate-ping h-68 w-68"
         />
       </div>
       <p class="text-white">
@@ -22,55 +24,34 @@
       <p class="text-sm text-center text-white">Weekly breakdown below</p>
     </div>
 
+    <Chart :days="all" />
     <Details :days="days" :average="average" />
   </div>
 </template>
 
 <script>
-/* eslint-disable camelcase */
 export default {
-  async asyncData({ $axios, $dateFns }) {
-    const today = new Date()
-    const tomorrow = $dateFns.addDays(today, 1)
-    const sevenDaysAgo = $dateFns.subDays(tomorrow, 7)
-    const { data } = await $axios.get(
-      `https://api.coronatracker.com/v4/analytics/newcases/country?countryCode=GB&startDate=${$dateFns.format(
-        sevenDaysAgo,
-        'yyyy-MM-dd'
-      )}&endDate=${$dateFns.format(tomorrow, 'yyyy-MM-dd')}`
-    )
+  async asyncData({ $axios }) {
+    const endpoint =
+      'https://api.coronavirus.data.gov.uk/v1/data?' +
+      'filters=areaType=overview&' +
+      'structure={"date":"date","newCases":"newCasesByPublishDate", "newDeaths": "newDeaths28DaysByPublishDate"}'
 
-    const formatted = data
-      .map((day) => {
-        const { last_updated, ...rest } = day
-
-        return {
-          date: $dateFns.parseISO(last_updated),
-          ...rest,
-        }
-      })
-      .filter(({ new_infections }) => new_infections > 0)
-
-    const days = [...formatted].reverse()
-
-    const average =
-      formatted.reduce((acc, curr) => curr.new_infections + acc, 0) /
-      formatted.length
+    const { data } = await $axios.get(endpoint)
+    const sevenDays = data.data.slice(0, 7)
+    const average = sevenDays.reduce((acc, curr) => curr.newCases + acc, 0) / sevenDays.length
 
     return {
-      days,
-      today: days[0],
-      yesterday: days[1],
+      days: sevenDays,
+      all: data.data,
+      today: sevenDays[0],
+      yesterday: sevenDays[1],
       average,
     }
   },
   computed: {
     difference() {
-      const difference = this.getPercentageChange(
-        this.today.new_infections,
-        this.yesterday.new_infections
-      )
-
+      const difference = this.getPercentageChange(this.today.newCases, this.yesterday.newCases)
       return difference.toFixed(2)
     },
     hasDecreased() {
