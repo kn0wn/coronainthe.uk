@@ -19,15 +19,18 @@ export default {
     chart: null,
   }),
   mounted() {
-    const today = new Date()
+    // Simple workaround
+    const isMobileDevice = /Mobi/i.test(window.navigator.userAgent)
+
+    const today = this.$dateFns.parseISO(this.days[0].date)
 
     const threeMonthsAgo = this.$dateFns.subMonths(today, 1)
-    const daysBetween = this.$dateFns.differenceInDays(today, threeMonthsAgo)
+    const daysBetween = isMobileDevice ? 7 : this.$dateFns.differenceInDays(today, threeMonthsAgo)
 
     const labels = []
 
     for (let index = 0; index < daysBetween; index++) {
-      const date = this.$dateFns.addDays(today, index)
+      const date = this.$dateFns.subDays(today, index)
       labels.push(this.$dateFns.format(date, 'P'))
     }
 
@@ -39,7 +42,7 @@ export default {
     this.chart = new Chart(this.$refs.coronaChart, {
       type: 'line',
       data: {
-        labels,
+        labels: labels.reverse(),
         datasets: [
           {
             label: 'New Cases',
